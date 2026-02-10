@@ -4,7 +4,12 @@ from util.llm_client import LLMClient
 from pymilvus import MilvusClient
 from pymilvus.model.dense import OpenAIEmbeddingFunction
 from retrieval.base_retriever import RetrievedData
-from util.constants import MILVUS_DB_PATH, MILVUS_COLLECTION_NAME_VersionRAG, MILVUS_META_ATTRIBUTE_TEXT, MILVUS_META_ATTRIBUTE_PAGE, MILVUS_META_ATTRIBUTE_FILE, MILVUS_META_ATTRIBUTE_CATEGORY, MILVUS_META_ATTRIBUTE_DOCUMENTATION, MILVUS_META_ATTRIBUTE_VERSION, MILVUS_META_ATTRIBUTE_TYPE, EMBEDDING_MODEL, EMBEDDING_DIMENSIONS
+from util.constants import (
+    MILVUS_DB_PATH, MILVUS_COLLECTION_NAME_VersionRAG, MILVUS_META_ATTRIBUTE_TEXT,
+    MILVUS_META_ATTRIBUTE_PAGE, MILVUS_META_ATTRIBUTE_FILE, MILVUS_META_ATTRIBUTE_CATEGORY,
+    MILVUS_META_ATTRIBUTE_DOCUMENTATION, MILVUS_META_ATTRIBUTE_VERSION, MILVUS_META_ATTRIBUTE_TYPE,
+    EMBEDDING_MODEL, EMBEDDING_DIMENSIONS
+)
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -23,7 +28,10 @@ class VersionRAGRetrieverDatabase:
         self.graph = GraphClient()
         self.llm_client = LLMClient()
         self.vdb = MilvusClient(MILVUS_DB_PATH)
-        self.vdb_embedding = OpenAIEmbeddingFunction(model_name=EMBEDDING_MODEL, dimensions=EMBEDDING_DIMENSIONS)
+        self.vdb_embedding = OpenAIEmbeddingFunction(
+            model_name=EMBEDDING_MODEL,
+            dimensions=EMBEDDING_DIMENSIONS
+        )
 
     def retrieve(self, params: RetrievalParam) -> RetrievedData:
         self.preprocess_params(params=params)
