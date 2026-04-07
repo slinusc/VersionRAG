@@ -1,13 +1,20 @@
 from retrieval.base_retriever import BaseRetriever, RetrievedData
 from pymilvus import MilvusClient
 from pymilvus.model.dense import OpenAIEmbeddingFunction
-from util.constants import MILVUS_DB_PATH, MILVUS_COLLECTION_NAME_BASELINE, MILVUS_META_ATTRIBUTE_TEXT, MILVUS_META_ATTRIBUTE_PAGE, MILVUS_META_ATTRIBUTE_FILE, MILVUS_BASELINE_SOURCE_COUNT, EMBEDDING_MODEL, EMBEDDING_DIMENSIONS
+from util.constants import (
+    MILVUS_DB_PATH, MILVUS_COLLECTION_NAME_BASELINE, MILVUS_META_ATTRIBUTE_TEXT,
+    MILVUS_META_ATTRIBUTE_PAGE, MILVUS_META_ATTRIBUTE_FILE, MILVUS_BASELINE_SOURCE_COUNT,
+    EMBEDDING_MODEL, EMBEDDING_DIMENSIONS
+)
 from dotenv import load_dotenv
 load_dotenv()
 
 class BaselineRetriever(BaseRetriever):
     def __init__(self):
-        self.embedding_fn = OpenAIEmbeddingFunction(model_name=EMBEDDING_MODEL, dimensions=EMBEDDING_DIMENSIONS)
+        self.embedding_fn = OpenAIEmbeddingFunction(
+            model_name=EMBEDDING_MODEL,
+            dimensions=EMBEDDING_DIMENSIONS
+        )
         self.client = None
         super().__init__()
 

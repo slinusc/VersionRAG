@@ -84,12 +84,36 @@ def run_console_mode():
 
     # Execute the selected mode
     if mode == "Indexing":
-        # Get absolute file paths from the ../data/raw/ directory
-        raw_data_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "raw")
-        file_paths = get_files_from_directory(raw_data_dir)
-        
-        # Pass the list of absolute file paths to the indexer
-        indexer.index_data(file_paths)
+        # For VersionRAG, offer register-based indexing option
+        if model_choice == VERSIONRAG_MODEL:
+            indexing_method = get_user_choice(
+                "Select indexing method:",
+                ["Register-based (no LLM for metadata)", "File-based (uses LLM)"]
+            )
+
+            if indexing_method.startswith("Register"):
+                default_register = os.path.join(
+                    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                    "extented_data_set", "documentation_register.json"
+                )
+                register_path = input(f"Register path (default: {default_register}): ") or default_register
+
+                default_base = os.path.join(
+                    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                    "extented_data_set"
+                )
+                base_path = input(f"Base path for files (default: {default_base}): ") or default_base
+
+                indexer.index_from_register(register_path, base_path)
+            else:
+                raw_data_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "raw")
+                file_paths = get_files_from_directory(raw_data_dir)
+                indexer.index_data(file_paths)
+        else:
+            # For other models, use traditional file-based indexing
+            raw_data_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "raw")
+            file_paths = get_files_from_directory(raw_data_dir)
+            indexer.index_data(file_paths)
     elif mode == "Retrieval":
         query = input("Enter your query: ")
         retrieved_data = retriever.retrieve(query)

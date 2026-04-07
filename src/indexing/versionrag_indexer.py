@@ -2,6 +2,7 @@ from indexing.base_indexer import BaseIndexer
 from indexing.versionrag_indexer_graph import VersionRAGIndexerGraph
 from indexing.versionrag_indexer_extract_attributes import extract_attributes_from_file
 from indexing.versionrag_indexer_clustering import cluster_documentation
+from indexing.register_schema import Register
 from util.chunker import Chunk
 from util.constants import MILVUS_COLLECTION_NAME_VERSIONRAG
 
@@ -66,5 +67,35 @@ class VersionRAGIndexer(BaseIndexer):
             except Exception as e:
                 raise ValueError(f"attribute extraction of file {data_file} failed: {e}")
         return files_with_extracted_attributes
-        
-            
+
+    def index_from_register(self, register_path: str, base_path: str = None):
+        """
+        Index documentation from a register file (no LLM for metadata extraction).
+
+        Args:
+            register_path: Path to documentation_register.json
+            base_path: Base path for resolving relative file paths in the register
+        """
+        # Load register and convert to FileAttributes
+        register = Register.load(register_path)
+        stats = register.stats()
+        print(f"Loaded register: {stats['collections']} collections, {stats['total_versions']} versions")
+
+        file_attributes = register.to_file_attributes(base_path=base_path)
+        print(f"Converted to {len(file_attributes)} file attributes")
+
+        # Skip LLM-based extraction and clustering - metadata comes from register
+
+        # Build graph structure
+        self.graph.generate_basic_graph(file_attributes)
+        print("Basic graph generated")
+
+        # Change level construction (still uses LLM for changelog parsing)
+        self.graph.generate_change_level()
+        print("Change level constructed")
+
+        # Content indexing
+        content_nodes = self.graph.get_all_content_nodes_with_context()
+        change_nodes = self.graph.get_all_change_nodes_with_context()
+        self.index_content(content_nodes=content_nodes, change_nodes=change_nodes)
+        print("Content indexed")
