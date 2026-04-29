@@ -5,7 +5,7 @@ from pymilvus import MilvusClient
 from pymilvus.model.dense import OpenAIEmbeddingFunction
 from retrieval.base_retriever import RetrievedData
 from util.constants import (
-    MILVUS_DB_PATH, MILVUS_COLLECTION_NAME_VersionRAG, MILVUS_META_ATTRIBUTE_TEXT,
+    MILVUS_DB_PATH, MILVUS_COLLECTION_NAME_VERSIONRAG, MILVUS_META_ATTRIBUTE_TEXT,
     MILVUS_META_ATTRIBUTE_PAGE, MILVUS_META_ATTRIBUTE_FILE, MILVUS_META_ATTRIBUTE_CATEGORY,
     MILVUS_META_ATTRIBUTE_DOCUMENTATION, MILVUS_META_ATTRIBUTE_VERSION, MILVUS_META_ATTRIBUTE_TYPE,
     EMBEDDING_MODEL, EMBEDDING_DIMENSIONS
@@ -195,7 +195,7 @@ class VersionRAGRetrieverDatabase:
         if not query:
             return "Error: Parameter 'query' is required for content retrieval."
         
-        if not self.vdb.has_collection(collection_name=MILVUS_COLLECTION_NAME_VersionRAG):
+        if not self.vdb.has_collection(collection_name=MILVUS_COLLECTION_NAME_VERSIONRAG):
             return "no data indexed"
         
         # create vdb filter from params
@@ -213,7 +213,7 @@ class VersionRAGRetrieverDatabase:
         query_vectors = self.vdb_embedding.encode_queries([query])
 
         res = self.vdb.search(
-            collection_name=MILVUS_COLLECTION_NAME_VersionRAG,
+            collection_name=MILVUS_COLLECTION_NAME_VERSIONRAG,
             data=query_vectors,
             limit=entity_limit,  # number of returned entities
             output_fields=[MILVUS_META_ATTRIBUTE_TEXT, 

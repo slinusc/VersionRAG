@@ -90,14 +90,36 @@ class VersionRAGIndexerGraph():
                 """, category_name=clustering["name"], doc_names=clustering["documents"])
         
     def generate_change_level(self):
-        # extract changes from changelog and store them
+        # extract changes from changelog and store them (parallelized)
+        from concurrent.futures import ThreadPoolExecutor, as_completed
+        import threading
+
         changelog_contents = self.get_changelog_contents()
         diff_contents = self.get_diff_contents()
+
+        # Lock for thread-safe Neo4j writes
+        db_lock = threading.Lock()
+
+        def extract_and_store(content):
+            changes = extract_changes_from_changelog(content)
+            with db_lock:
+                with self.graph.session() as session:
+                    session.execute_write(self.store_changes, changes)
+            return len(changes)
+
+        # Parallel extraction and storage
+        with ThreadPoolExecutor(max_workers=10) as executor:
+            futures = {executor.submit(extract_and_store, content): content
+                      for content in changelog_contents}
+            for future in as_completed(futures):
+                try:
+                    count = future.result()
+                    print(f"Stored {count} changes")
+                except Exception as e:
+                    print(f"Failed to extract changes: {e}")
+
+        # generate changes from difference between versions
         with self.graph.session() as session:
-            for changelog_content in changelog_contents:
-                changes_from_changelog = extract_changes_from_changelog(changelog_content)
-                session.execute_write(self.store_changes, changes_from_changelog)
-            # generate changes from difference between versions
             changes_from_diff = generate_changes_from_diff(diff_contents)
             session.execute_write(self.store_changes, changes_from_diff)
            

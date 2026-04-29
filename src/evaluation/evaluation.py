@@ -1,9 +1,9 @@
 import csv
 from retrieval.baseline_retriever import BaselineRetriever
-from retrieval.VersionRAG_retriever import VersionRAGRetriever
+from retrieval.versionrag_retriever import VersionRAGRetriever
 from retrieval.kg_retriever import KnowledgeGraphRetriever
 from generation.baseline_generator import BaselineGenerator
-from generation.VersionRAG_generator impoVersionRAGRAGGenerator
+from generation.versionrag_generator import VersionRAGGenerator
 from generation.kg_generator import KnowledgeGraphGenerator
 from indexing.kg_indexer import KnowledgeGraphIndexer
 from util.constants import AVAILABLE_MODELS, BASELINE_MODEL, KG_MODEL

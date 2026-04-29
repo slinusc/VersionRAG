@@ -32,15 +32,15 @@ class LLMClient:
     def generate(self, system_prompt: str, user_prompt: str):
         if LLM_MODE == 'openai':
             kwargs = {
-                "model": "gpt-4o-mini",
+                "model": "gpt-5-nano",
                 "messages": [
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_prompt}
                 ]
             }
 
-            if self.temp is not None:
-                kwargs["temperature"] = self.temp
+            # if self.temp is not None:
+            #     kwargs["temperature"] = self.temp
 
             if self.json_format:
                 kwargs["response_format"] = {"type": "json_object"}
@@ -59,8 +59,7 @@ class LLMClient:
             }
             if self.temp is not None:
                 payload["options"] = {"temperature": self.temp}
-            if self.json_format:
-                payload["format"] = "json"
+            # Note: format=json not used as some models return empty responses with it
 
             response = requests.post(self.ollama_url, json=payload)
             response.raise_for_status()
